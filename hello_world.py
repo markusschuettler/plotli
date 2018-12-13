@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from multiprocessing import Process, Value
 import time
 import numpy as np
-import requests
+from requests
 
 
 app = Flask(__name__, template_folder='.')
