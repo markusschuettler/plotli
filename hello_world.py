@@ -4,8 +4,12 @@ from flask import Flask, render_template
 from multiprocessing import Process, Value
 import time
 import numpy as np
+import requests
+
 
 app = Flask(__name__, template_folder='.')
+
+TRANSFERWISE_KEY = 'dad99d7d8e52c2c8aaf9fda788d8acdc'
 
 def record_loop(loop_on):
    while True:
@@ -58,6 +62,6 @@ if __name__ == '__main__':
     recording_on = Value('b', True)
     p = Process(target=record_loop, args=(recording_on,))
     p.start()
-    app.run(host='localhost', port=8080)
+    app.run(host='0.0.0.0', port=8080)
 
     p.join()
