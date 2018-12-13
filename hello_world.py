@@ -6,17 +6,26 @@ import time
 import numpy as np
 import requests
 
-
 app = Flask(__name__, template_folder='.')
 
 TRANSFERWISE_KEY = 'dad99d7d8e52c2c8aaf9fda788d8acdc'
 
+
 def record_loop(loop_on):
-   while True:
-      if loop_on.value == True:
-          with open('data/test.txt','a') as f:
-              print(np.random.randint(0,10),file=f)
-      time.sleep(1)
+    lastrate=0
+    with open('data/test.txt', 'r') as f:
+        lastrate=float(f.readlines()[-1])
+    while True:
+        if loop_on.value == True:
+            url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
+                  "&sourceCurrency=CHF&targetCurrency=EUR"
+            req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
+            rate=req.json()['transferwiseRate']
+            if rate!=lastrate:
+                with open('data/test.txt', 'a') as f:
+                    print(rate, file=f)
+        time.sleep(10)
+
 
 # Create the main plot
 def create_figure():
@@ -50,12 +59,12 @@ def hello_world():
     # Embed plot into HTML via Flask Render
     script, div = components(plot)
     try:
-        with open('data/test.txt','r') as f:
-            text=f.readlines()[-1]
+        with open('data/test.txt', 'r') as f:
+            text = f.readlines()[-1]
     except Exception as e:
         print(e)
-        text='test'
-    return render_template("hello_world.html", script=script, div=div,title=text)
+        text = 'test'
+    return render_template("hello_world.html", script=script, div=div, title=text)
 
 
 if __name__ == '__main__':
