@@ -1,9 +1,18 @@
 from bokeh.embed import components
 from bokeh.plotting import figure
 from flask import Flask, render_template
+from multiprocessing import Process, Value
+import time
+import numpy as np
 
 app = Flask(__name__, template_folder='.')
 
+def record_loop(loop_on):
+   while True:
+      if loop_on.value == True:
+          with open('data/test.txt','a') as f:
+              print(np.random.randint(0,10),file=f)
+      time.sleep(1)
 
 # Create the main plot
 def create_figure():
@@ -15,8 +24,7 @@ def create_figure():
 
     # create a new plot
     p = figure(
-        tools="pan,box_zoom,reset,save",
-        y_axis_type="log", y_range=[0.001, 10 ** 11], title="log axis example",
+        tools="pan,box_zoom,reset,save", y_range=[0.001, 10 ** 11], title="magic",
         x_axis_label='sections', y_axis_label='particles'
     )
 
@@ -37,8 +45,19 @@ def hello_world():
 
     # Embed plot into HTML via Flask Render
     script, div = components(plot)
-    return render_template("hello_world.html", script=script, div=div)
+    try:
+        with open('data/test.txt','r') as f:
+            text=f.readlines()[-1]
+    except Exception as e:
+        print(e)
+        text='test'
+    return render_template("hello_world.html", script=script, div=div,title=text)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    recording_on = Value('b', True)
+    p = Process(target=record_loop, args=(recording_on,))
+    p.start()
+    app.run(host='localhost', port=8080)
+
+    p.join()
