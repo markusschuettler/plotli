@@ -11,15 +11,16 @@ app = Flask(__name__, template_folder='.')
 
 TRANSFERWISE_KEY = 'dad99d7d8e52c2c8aaf9fda788d8acdc'
 
-filename='rates.txt'
+filename = 'rates.txt'
+
 
 def record_loop(loop_on):
-    lastrate=0
+    lastrate = 0
     try:
-        with open('data/'+filename, 'r') as f:
-            lines=f.readlines()
-            if len(lines)>0:
-                lastrate=float(lines[-1].split()[1])
+        with open('data/' + filename, 'r') as f:
+            lines = f.readlines()
+            if len(lines) > 0:
+                lastrate = float(lines[-1].split()[1])
                 print(lastrate)
     except:
         pass
@@ -28,12 +29,12 @@ def record_loop(loop_on):
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
                   "&sourceCurrency=CHF&targetCurrency=EUR"
             req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
-            if req.status_code==requests.codes.ok:
-                rate=req.json()['transferwiseRate']
-                if rate!=lastrate:
-                    with open('data/'+filename, 'a') as f:
+            if req.status_code == requests.codes.ok:
+                rate = req.json()['transferwiseRate']
+                if rate != lastrate:
+                    with open('data/' + filename, 'a') as f:
                         print(dt.now().timestamp(), rate, file=f)
-                    lastrate=rate
+                    lastrate = rate
         time.sleep(10)
 
 
@@ -44,23 +45,23 @@ def create_figure(data):
     # create a new plot
     p = figure(
         tools="pan,box_zoom,reset,save",
-        y_axis_label='EUR/CHF',x_axis_type="datetime"
+        y_axis_label='EUR/CHF', x_axis_type="datetime"
     )
-    #p.sizing_mode='scale_both'
+    # p.sizing_mode='scale_both'
 
-    if data is not None and len(data.shape)==2:
-        x = data[:,0].astype('i8').view('datetime64[s]')
-        y=data[:,1]
+    if data is not None and len(data.shape) == 2:
+        x = data[:, 0].astype('i8').view('datetime64[s]')
+        y = data[:, 1]
         # add some renderers
-        p.step(x, y)
+        p.step(x, y, mode='after')
     return p
 
 
 @app.route('/')
 def hello_world():
-    data=None
+    data = None
     try:
-        data=np.loadtxt('data/'+filename,delimiter=' ')
+        data = np.loadtxt('data/' + filename, delimiter=' ')
     except Exception as e:
         print(e)
     # Create the plot
@@ -68,8 +69,8 @@ def hello_world():
 
     # Embed plot into HTML via Flask Render
     script, div = components(plot)
-    if data is not None and len(data.shape)==2:
-        text = '{}CHF/EUR'.format(data[-1,1])
+    if data is not None and len(data.shape) == 2:
+        text = '{}CHF/EUR'.format(data[-1, 1])
     else:
         text = 'test'
     return render_template("hello_world.html", script=script, div=div, title=text)
