@@ -1,6 +1,6 @@
-FROM python:3.7-alpine
+FROM python:3.7
 COPY requirements.txt .
-RUN pip install -i https://pypi.anaconda.org/bokeh/channel/dev/simple --extra-index-url https://pypi.python.org/simple/ -r requirements.txt
+RUN pip install -r requirements.txt
 COPY hello_world.py .
 WORKDIR .
 CMD ["python", "hello_world.py"]
