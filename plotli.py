@@ -74,7 +74,7 @@ def hello_world():
         text = '{}CHF/EUR'.format(data[-1, 1])
     else:
         text = 'test'
-    return render_template("hello_world.html", script=script, div=div, title=text)
+    return render_template("plotli.html", script=script, div=div, title=text)
 
 
 if __name__ == '__main__':
