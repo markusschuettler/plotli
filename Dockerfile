@@ -4,4 +4,4 @@ RUN pip install -r requirements.txt
 COPY plotli.html .
 COPY plotli.py .
 WORKDIR .
-CMD ["python", "hello_world.py"]
+CMD ["python", "plotli.py"]
