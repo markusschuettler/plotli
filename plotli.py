@@ -1,11 +1,12 @@
+import time
+from datetime import datetime as dt
+from multiprocessing import Process, Value
+
+import numpy as np
+import requests
 from bokeh.embed import components
 from bokeh.plotting import figure
 from flask import Flask, render_template
-from multiprocessing import Process, Value
-import time
-from datetime import datetime as dt
-import numpy as np
-import requests
 
 app = Flask(__name__, template_folder='.')
 
