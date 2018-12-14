@@ -26,7 +26,7 @@ def record_loop(loop_on):
     except:
         pass
     while True:
-        if loop_on.value == True:
+        if loop_on.value:
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
                   "&sourceCurrency=CHF&targetCurrency=EUR"
             req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
@@ -79,8 +79,8 @@ def hello_world():
 
 if __name__ == '__main__':
     recording_on = Value('b', True)
-    p = Process(target=record_loop, args=(recording_on,))
-    p.start()
+    process = Process(target=record_loop, args=(recording_on,))
+    process.start()
     app.run(host='0.0.0.0', port=8080)
 
-    p.join()
+    process.join()
