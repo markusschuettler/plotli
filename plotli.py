@@ -46,7 +46,7 @@ def create_figure(data):
 
     # create a new plot
     p = figure(
-        tools="pan,box_zoom,reset,save",
+        tools="pan,box_zoom,wheel_zoom,reset,save",
         y_axis_label='EUR/CHF', x_axis_type="datetime"
     )
     # p.sizing_mode='scale_both'
