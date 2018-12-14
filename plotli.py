@@ -5,6 +5,7 @@ from multiprocessing import Process, Value
 import numpy as np
 import requests
 from bokeh.embed import components
+from bokeh.models import DatetimeTickFormatter
 from bokeh.plotting import figure
 from flask import Flask, render_template
 
@@ -55,6 +56,16 @@ def create_figure(data):
         y = data[:, 1]
         # add some renderers
         p.step(x, y, mode='after')
+
+        p.xaxis.major_label_orientation = 3.14 / 4
+        p.xaxis.formatter = DatetimeTickFormatter(
+            minutes=["%H:%M"],
+            hourmin=["%H:%M"],
+            hours=["%H:%M"],
+            days=["%d.%m."],
+            months=["%b"],
+            years=["%Y"],
+        )
     return p
 
 
