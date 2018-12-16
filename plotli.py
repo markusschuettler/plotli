@@ -18,14 +18,11 @@ filename = 'rates.txt'
 
 def record_loop(loop_on):
     lastrate = 0
-    try:
-        with open('data/' + filename, 'r') as f:
-            lines = f.readlines()
-            if len(lines) > 0:
-                lastrate = float(lines[-1].split()[1])
-                print(lastrate)
-    except:
-        pass
+    with open('data/' + filename, 'r') as f:
+        lines = f.readlines()
+        if len(lines) > 0:
+            lastrate = float(lines[-1].split()[1])
+            print(lastrate)
     while True:
         if loop_on.value:
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
