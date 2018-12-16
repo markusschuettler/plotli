@@ -39,7 +39,7 @@ def record_loop(loop_on):
             logging.debug(req.content)
             if req.status_code == requests.codes.ok:
                 rate = req.json()['transferwiseRate']
-                if rate != lastrate and dt.now().timestamp() - lasttimestamp < 300:
+                if rate != lastrate or dt.now().timestamp() - lasttimestamp > 300:
                     lasttimestamp = dt.now().timestamp()
                     with open('data/' + FILENAME, 'a') as f:
                         logging.debug(f'Writing to rates file: {lasttimestamp}, {rate}')
