@@ -35,6 +35,7 @@ def record_loop(loop_on):
                 rate = req.json()['transferwiseRate']
                 if rate != lastrate:
                     with open('data/' + filename, 'a') as f:
+                        print(f'Writing to rates file: {dt.now().timestamp()}, {rate}')
                         print(dt.now().timestamp(), rate, file=f)
                     lastrate = rate
         time.sleep(10)
