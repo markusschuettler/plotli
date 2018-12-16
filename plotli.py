@@ -80,7 +80,6 @@ def create_figure(data):
 
 @app.route('/')
 def hello_world():
-    global lasttimestamp
     data = None
     try:
         data = np.loadtxt('data/' + FILENAME, delimiter=' ')
@@ -92,7 +91,7 @@ def hello_world():
     # Embed plot into HTML via Flask Render
     script, div = components(plot)
     if data is not None and len(data.shape) == 2:
-        timetext=dt.fromtimestamp(lasttimestamp.value).strftime('%H:%M:%S')
+        timetext = dt.fromtimestamp(data[-1, 0]).strftime('%H:%M:%S')
         text = f'{data[-1, 1]:.5f} CHF/EUR @ {timetext}'
     else:
         text = 'test'
