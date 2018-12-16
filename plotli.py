@@ -12,9 +12,7 @@ from flask import Flask, render_template
 app = Flask(__name__, template_folder='.')
 
 TRANSFERWISE_KEY = 'dad99d7d8e52c2c8aaf9fda788d8acdc'
-
-filename = 'rates.txt'
-
+FILENAME = 'rates.txt'
 
 def record_loop(loop_on):
     lastrate = 0
