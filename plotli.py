@@ -56,7 +56,7 @@ def create_figure(data):
         y_axis_label='EUR/CHF', x_axis_type="datetime",
         title='teeny tiny graph'
     )
-    p.sizing_mode='stretch_width'
+    # p.sizing_mode='stretch_width'
     if data is not None and len(data.shape) == 2:
         x = data[:, 0].astype('i8').view('datetime64[s]')
         y = data[:, 1]
