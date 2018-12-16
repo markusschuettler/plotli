@@ -8,6 +8,7 @@ import requests
 from bokeh.embed import components
 from bokeh.models import DatetimeTickFormatter
 from bokeh.plotting import figure
+from bokeh.models import LinearAxis, Range1d
 from flask import Flask, render_template
 
 logging.basicConfig(level=logging.DEBUG)
@@ -75,11 +76,24 @@ def create_figure(data):
             months=["%b"],
             years=["%Y"],
         )
+        off=y.ptp()*0.04
+        minrate=y.min()-off
+        maxrate=y.max()+off
+        amount=5000
+        fee=amount*0.002991+1.49578
+        min_amount=(amount-fee)*(minrate)
+        max_amount=(amount-fee)*(maxrate)
+        p.y_range=Range1d(start=y.min()-off,end=y.max()+off)
+        p.extra_y_ranges = {"magic": Range1d(start=min_amount, end=max_amount)}
+
+        # add the second axis to the plot
+        p.add_layout(LinearAxis(y_range_name="magic", axis_label='EUR'), 'right')
     return p
 
 
 @app.route('/')
 def hello_world():
+    global lasttimestamp
     data = None
     try:
         data = np.loadtxt('data/' + FILENAME, delimiter=' ')
@@ -91,7 +105,7 @@ def hello_world():
     # Embed plot into HTML via Flask Render
     script, div = components(plot)
     if data is not None and len(data.shape) == 2:
-        timetext = dt.fromtimestamp(data[-1, 0]).strftime('%H:%M:%S')
+        timetext=dt.fromtimestamp(lasttimestamp.value+3600).strftime('%H:%M:%S')
         text = f'{data[-1, 1]:.5f} CHF/EUR @ {timetext}'
     else:
         text = 'test'
