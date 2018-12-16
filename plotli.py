@@ -24,6 +24,7 @@ def record_loop(loop_on):
             lastrate = float(lines[-1].split()[1])
             print(lastrate)
     while True:
+        print(f'At the beginning of record loop with loop_on={loop_on.value}')
         if loop_on.value:
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
                   "&sourceCurrency=CHF&targetCurrency=EUR"
