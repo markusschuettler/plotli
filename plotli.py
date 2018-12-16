@@ -1,6 +1,7 @@
 import time
 from datetime import datetime as dt
 from multiprocessing import Process, Value
+import logging
 
 import numpy as np
 import requests
@@ -9,33 +10,39 @@ from bokeh.models import DatetimeTickFormatter
 from bokeh.plotting import figure
 from flask import Flask, render_template
 
+logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__, template_folder='.')
 
 TRANSFERWISE_KEY = 'dad99d7d8e52c2c8aaf9fda788d8acdc'
 FILENAME = 'rates.txt'
 
+
 def record_loop(loop_on):
     lastrate = 0
     lasttimestamp = 0
-    with open('data/' + filename, 'r') as f:
-        lines = f.readlines()
-        if len(lines) > 0:
-            lastrate = float(lines[-1].split()[1])
-            print(lastrate)
+    try:
+        with open('data/' + FILENAME, 'r') as f:
+            lines = f.readlines()
+            if len(lines) > 0:
+                lastrate = float(lines[-1].split()[1])
+                logging.info(f'Last rate found in {FILENAME}: {lastrate}')
+    except Exception as e:
+        logging.error(f'Something went horribly wrong while trying to read the last rate: {e}')
+
     while True:
-        print(f'At the beginning of record loop with loop_on={loop_on.value}')
+        logging.debug(f'At the beginning of record loop with loop_on={loop_on.value}')
         if loop_on.value:
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
                   "&sourceCurrency=CHF&targetCurrency=EUR"
             req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
-            print(req.status_code)
-            print(req.content)
+            logging.debug(req.status_code)
+            logging.debug(req.content)
             if req.status_code == requests.codes.ok:
                 rate = req.json()['transferwiseRate']
                 if rate != lastrate and dt.now().timestamp() - lasttimestamp < 300:
                     lasttimestamp = dt.now().timestamp()
-                    with open('data/' + filename, 'a') as f:
-                        print(f'Writing to rates file: {lasttimestamp}, {rate}')
+                    with open('data/' + FILENAME, 'a') as f:
+                        logging.debug(f'Writing to rates file: {lasttimestamp}, {rate}')
                         print(lasttimestamp, rate, file=f)
                     lastrate = rate
         time.sleep(10)
@@ -74,9 +81,9 @@ def create_figure(data):
 def hello_world():
     data = None
     try:
-        data = np.loadtxt('data/' + filename, delimiter=' ')
+        data = np.loadtxt('data/' + FILENAME, delimiter=' ')
     except Exception as e:
-        print(e)
+        logging.error(f'Something went horribly wrong while trying to read the last rate: {e}')
     # Create the plot
     plot = create_figure(data)
 
