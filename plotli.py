@@ -28,6 +28,8 @@ def record_loop(loop_on):
             url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
                   "&sourceCurrency=CHF&targetCurrency=EUR"
             req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
+            print(req.status_code)
+            print(req.content)
             if req.status_code == requests.codes.ok:
                 rate = req.json()['transferwiseRate']
                 if rate != lastrate:
