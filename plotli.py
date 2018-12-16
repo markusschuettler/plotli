@@ -18,6 +18,7 @@ filename = 'rates.txt'
 
 def record_loop(loop_on):
     lastrate = 0
+    lasttimestamp = 0
     with open('data/' + filename, 'r') as f:
         lines = f.readlines()
         if len(lines) > 0:
@@ -33,10 +34,11 @@ def record_loop(loop_on):
             print(req.content)
             if req.status_code == requests.codes.ok:
                 rate = req.json()['transferwiseRate']
-                if rate != lastrate:
+                if rate != lastrate and dt.now().timestamp() - lasttimestamp < 300:
+                    lasttimestamp = dt.now().timestamp()
                     with open('data/' + filename, 'a') as f:
-                        print(f'Writing to rates file: {dt.now().timestamp()}, {rate}')
-                        print(dt.now().timestamp(), rate, file=f)
+                        print(f'Writing to rates file: {lasttimestamp}, {rate}')
+                        print(lasttimestamp, rate, file=f)
                     lastrate = rate
         time.sleep(10)
 
