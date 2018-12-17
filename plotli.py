@@ -7,7 +7,7 @@ import numpy as np
 import requests
 from bokeh.embed import components
 from bokeh.models import DatetimeTickFormatter
-from bokeh.plotting import figure
+from bokeh.plotting import figure, curdoc
 from bokeh.models import LinearAxis, Range1d
 from flask import Flask, render_template
 
@@ -33,17 +33,21 @@ def record_loop(loop_on,lasttimestamp):
     while loop_on.value:
         url = "https://transferwise.com/api/v1/payment/calculate?amount=1" \
               "&sourceCurrency=CHF&targetCurrency=EUR"
-        req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
-        logging.debug(req.status_code)
-        logging.debug(req.content)
-        if req.status_code == requests.codes.ok:
-            rate = req.json()['transferwiseRate']
-            lasttimestamp.value = dt.now().timestamp()
-            if rate != lastrate:
-                with open('data/' + FILENAME, 'a') as f:
-                    logging.debug(f'Writing to rates file: {lasttimestamp.value}, {rate}')
-                    print(lasttimestamp.value, rate, file=f)
-                lastrate = rate
+        try:
+            req = requests.get(url, headers={'X-Authorization-key': TRANSFERWISE_KEY})
+        except Exception as e:
+            logging.error(f'Something went horribly wrong while trying to read the last rate: {e}')
+        else:
+            logging.debug(req.status_code)
+            logging.debug(req.content)
+            if req.status_code == requests.codes.ok:
+                rate = req.json()['transferwiseRate']
+                lasttimestamp.value = dt.now().timestamp()
+                if rate != lastrate:
+                    with open('data/' + FILENAME, 'a') as f:
+                        logging.debug(f'Writing to rates file: {lasttimestamp.value}, {rate}')
+                        print(lasttimestamp.value, rate, file=f)
+                    lastrate = rate
         time.sleep(10)
 
 
@@ -79,7 +83,10 @@ def create_figure(data):
         off=y.ptp()*0.04
         minrate=y.min()-off
         maxrate=y.max()+off
+        args=curdoc().session_context.request.arguments
         amount=5000
+        if 'amount' in args:
+            amount=int(args['amount'])
         fee=amount*0.002991+1.49578
         min_amount=(amount-fee)*(minrate)
         max_amount=(amount-fee)*(maxrate)
