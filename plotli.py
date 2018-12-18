@@ -8,7 +8,7 @@ import requests
 from bokeh.embed import components
 from bokeh.models import DatetimeTickFormatter
 from bokeh.plotting import figure
-from bokeh.models import LinearAxis, Range1d
+from bokeh.models import LinearAxis, Range1d, Span
 from flask import Flask, render_template, request
 
 logging.basicConfig(level=logging.DEBUG)
@@ -63,12 +63,27 @@ def create_figure(data):
     )
     # p.sizing_mode='stretch_width'
     if data is not None and len(data.shape) == 2:
+        args=request.args
+        amount=5000
+        if 'amount' in args:
+            amount=int(args['amount'])
+        maxline=0.89
+        minline=0.88
+        if 'max' in args:
+            maxline=float(args['max'])
+        if 'min' in args:
+            minline=float(args['min'])
         x = data[:, 0].astype('i8').view('datetime64[s]')
         y = data[:, 1]
         # always plot the last value up to the current time
         x=np.hstack((x,dt.now()))
         y=np.hstack((y,y[-1]))
         # add some renderers
+        hline=Span(location=y[-1],dimension='width',line_color='black')
+        hline_min=Span(location=minline,dimension='width',line_color='red')
+        hline_max=Span(location=maxline,dimension='width',line_color='green')
+
+        p.renderers.extend([hline,hline_min,hline_max])
         p.step(x, y, mode='after')
 
         p.xaxis.major_label_orientation = 3.14 / 4
@@ -83,10 +98,6 @@ def create_figure(data):
         off=y.ptp()*0.04
         minrate=y.min()-off
         maxrate=y.max()+off
-        args=request.args
-        amount=5000
-        if 'amount' in args:
-            amount=int(args['amount'])
         fee=amount*0.002991+1.49578
         min_amount=(amount-fee)*(minrate)
         max_amount=(amount-fee)*(maxrate)
