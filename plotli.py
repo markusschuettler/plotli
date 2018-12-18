@@ -7,9 +7,9 @@ import numpy as np
 import requests
 from bokeh.embed import components
 from bokeh.models import DatetimeTickFormatter
-from bokeh.plotting import figure, curdoc
+from bokeh.plotting import figure
 from bokeh.models import LinearAxis, Range1d
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__, template_folder='.')
@@ -83,7 +83,7 @@ def create_figure(data):
         off=y.ptp()*0.04
         minrate=y.min()-off
         maxrate=y.max()+off
-        args=curdoc().session_context.request.arguments
+        args=request.args
         amount=5000
         if 'amount' in args:
             amount=int(args['amount'])
